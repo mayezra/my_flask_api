@@ -45,7 +45,7 @@ def get_student(id):
 
     try:
         # Try to get data from Redis first
-        cached_data = redis_client.get('id')
+        cached_data = redis_client.get(f'student_{id}')
     except Exception as e:
         return jsonify({"error": f"Error accessing Redis: {str(e)}"}), 500
     
