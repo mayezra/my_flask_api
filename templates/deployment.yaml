@@ -85,11 +85,11 @@ spec:
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "my-flask-app.fullname" . }}-secret
+                  name: {{ .Values.existingSecretName }}
                   key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "my-flask-app.fullname" . }}-secret
+                  name: {{ .Values.existingSecretName }}
                   key: POSTGRES_PASSWORD
 

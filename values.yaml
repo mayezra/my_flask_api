@@ -13,6 +13,7 @@ image:
   pullPolicy: IfNotPresent
 imagePullSecrets:
   - name: regcred 
+existingSecretName: my-flask-app-secret
 
 #postgresdb:
 #  auth:
