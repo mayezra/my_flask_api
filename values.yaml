@@ -15,15 +15,6 @@ imagePullSecrets:
   - name: regcred 
 existingSecretName: my-flask-app-secret
 
-#postgresdb:
-#  auth:
-#    username: postgres
-#    password: postgres
-#    database: students
-#    persistence:
-#      enabled: true
-#      storageClass: "standard"
-#      size: 8Gi
 
 postgresdb:
   auth:
@@ -46,10 +37,6 @@ env:
   CACHE_REDIS_DB: "0"
   POSTGRES_HOST: "my-flask-app-postgresdb"
   POSTGRES_DB: "students"
-
-#secrets:
-#  POSTGRES_USER: "postgres"
-#  POSTGRES_PASSWORD: "postgres"
 
 # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 # imagePullSecrets: []
