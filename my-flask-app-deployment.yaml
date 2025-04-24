@@ -1,0 +1,137 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "11"
+    meta.helm.sh/release-name: my-flask-app
+    meta.helm.sh/release-namespace: default
+  creationTimestamp: "2025-03-25T18:19:28Z"
+  generation: 11
+  labels:
+    app.kubernetes.io/instance: my-flask-app
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: my-flask-app
+    app.kubernetes.io/version: 1.16.0
+    helm.sh/chart: my-flask-app-0.1.0
+  name: my-flask-app
+  namespace: default
+  resourceVersion: "527213"
+  uid: a3918427-6a5f-4a7f-a55d-8b26b6de3ff3
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: my-flask-app
+      app.kubernetes.io/name: my-flask-app
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2025-03-27T09:56:52+02:00"
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/instance: my-flask-app
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: my-flask-app
+        app.kubernetes.io/version: 1.16.0
+        helm.sh/chart: my-flask-app-0.1.0
+    spec:
+      containers:
+      - env:
+        - name: CACHE_REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              key: CACHE_REDIS_HOST
+              name: my-flask-app-config
+        - name: CACHE_REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              key: CACHE_REDIS_PORT
+              name: my-flask-app-config
+        - name: CACHE_REDIS_DB
+          valueFrom:
+            configMapKeyRef:
+              key: CACHE_REDIS_DB
+              name: my-flask-app-config
+        - name: POSTGRES_HOST
+          valueFrom:
+            configMapKeyRef:
+              key: POSTGRES_HOST
+              name: my-flask-app-config
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              key: POSTGRES_DB
+              name: my-flask-app-config
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              key: POSTGRES_USER
+              name: my-flask-app-secret
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: POSTGRES_PASSWORD
+              name: my-flask-app-secret
+        image: mayezra/my_flask_api:v1
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 5000
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: my-flask-app
+        ports:
+        - containerPort: 5000
+          name: http
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 5000
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: regcred
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: my-flask-app
+      serviceAccountName: my-flask-app
+      terminationGracePeriodSeconds: 30
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2025-03-27T07:14:32Z"
+    lastUpdateTime: "2025-03-27T07:14:32Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2025-03-27T07:56:22Z"
+    lastUpdateTime: "2025-03-27T07:57:07Z"
+    message: ReplicaSet "my-flask-app-687ffd7c99" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  observedGeneration: 11
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1
