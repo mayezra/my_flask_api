@@ -1,4 +1,3 @@
-# Ties everything together and starts the Flask app
 from flask_students_routes import get_students, add_student, get_student  # Importing app, db, and Student from db.py
 from redis_cache import create_app
 

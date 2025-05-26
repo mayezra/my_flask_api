@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  app: 
+    build: .
+    ports: 
+      - "5000:5000"
+    depends_on:
+      - redis-db
+      - postgres-db
+    networks:
+      - app_network
+    env_file:
+      - .env
+
+  redis-db:
+    image: redis
+    container_name: redis-db
+    ports:
+      - "6379:6379"
+    restart: always
+    networks:
+      - app_network
+    # helps recover data after a container restart if it was not already flushed to the volume.
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-db:
+    image: postgres
+    container_name: postgres-db
+    ports:
+      - "5432:5432"
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  postgres_data: {}
+  redis_data: {}

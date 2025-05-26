@@ -3,38 +3,51 @@ from flask import jsonify, request
 from redis_cache import redis_client
 import json
 from db import db, Student
+import time
+from sqlalchemy import inspect
 
+# def check_postgres():
+#     """Check if PostgreSQL is reachable and the 'student' table exists."""
+#     try:
+#         inspector = inspect(db.engine)
+#         return inspector.has_table('student')  # More efficient check
+#     except Exception as e:
+#         print(f"Database connection error: {e}")
+#         return False
 
 def get_students():
+    # Check PostgreSQL availability
+    # if not check_postgres():
+    #     return jsonify({"error": "PostgreSQL is down. Stopping execution."}), 500
+    
     try:
         # Try to get data from Redis first
         cached_data = redis_client.get('students_all')
-    
+        if cached_data:
+            return jsonify(json.loads(cached_data))
+
+        else:
+            print("student is not in redis yet")
+            # If not in Redis, fetch from PostgreSQL
+            students = Student.query.all()
+            result = [{
+                'id': student.id,
+                'firstname': student.firstname,
+                'lastname': student.lastname,
+                'email': student.email,
+                'age': student.age,
+                'created_at': student.created_at.isoformat(),
+                'bio': student.bio
+            } for student in students]
+
+            # Storing data in Redis - Cache the result for 1 hour
+            redis_client.set('students_all', json.dumps(result), ex=3600)
+            print("student is added to redis caching")
+            return jsonify(result)
+        
     except Exception as e:
         return jsonify({"error": f"Error accessing Redis: {str(e)}"}), 500
     
-    if cached_data:
-        # Serve data from cache (deserialized)
-        return jsonify(json.loads(cached_data))
-    print("student is not in redis yet")
-
-    # If not in Redis, fetch from PostgreSQL
-    students = Student.query.all()
-    result = [{
-        'id': student.id,
-        'firstname': student.firstname,
-        'lastname': student.lastname,
-        'email': student.email,
-        'age': student.age,
-        'created_at': student.created_at.isoformat(),
-        'bio': student.bio
-    } for student in students]
-
-    # Storing data in Redis - Cache the result for 1 hour
-    redis_client.set('students_all', json.dumps(result), ex=3600)
-    print("student is added to redis caching")
-
-    return jsonify(result)
 
 def get_student(id):
     # Ensure the id is treated as an integer
@@ -80,8 +93,8 @@ def add_student():
             firstname=data['firstname'],
             lastname=data['lastname'],
             email=data['email'],
-            age=data.get('age'),
-            bio=data.get('bio')
+            age=data['age'],
+            bio=data['bio']
         )
         # Add to the database
         db.session.add(new_student)
