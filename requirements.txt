@@ -1,0 +1,9 @@
+Flask>=2.1.2
+Flask_SQLAlchemy>=2.5.1
+redis>=4.3.4
+importlib-metadata>=3.6.0; python_version < "3.10"
+blinker>=1.6.2
+psycopg2-binary
+python-dotenv==1.0.0
+
+
