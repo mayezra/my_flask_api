@@ -1,23 +1,24 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
-  name: postgres
+  name: flask-api
+  labels:
+    app: flask-api
 spec:
-  serviceName: "postgres-db"
-  replicas: 1
+  replicas: 2  # Number of Pods
   selector:
     matchLabels:
-      app: postgres
+      app: flask-api
   template:
     metadata:
       labels:
-        app: postgres
+        app: flask-api
     spec:
       containers:
-      - name: postgres
-        image: postgres:latest
+      - name: flask-api
+        image: mayezra/my_flask_api:v1  
         ports:
-        - containerPort: 5432
+          - containerPort: 5000
         env:
         - name: POSTGRES_USER
           valueFrom:
@@ -39,14 +40,14 @@ spec:
             configMapKeyRef:
               name: my-configmap
               key: POSTGRES_HOST
-        volumeMounts:
-        - name: postgres-storage
-          mountPath: /var/lib/postgresql/data
-  volumeClaimTemplates:
-  - metadata:
-      name: postgres-storage
-    spec:
-      accessModes: ["ReadWriteOnce"]
-      resources:
-        requests:
-          storage: 1Gi
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: my-configmap
+              key: REDIS_HOST
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: my-configmap
+              key: REDIS_PORT
+
