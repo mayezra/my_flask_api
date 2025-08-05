@@ -1,0 +1,10 @@
+# templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flask-app-config
+data:
+  {{- range $key, $val := .Values.env.config }}
+  {{ $key }}: "{{ $val }}"
+  {{- end }}
+
