@@ -50,7 +50,6 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: . # build in this path
-        file: ./Dockerfile
         push: true # Push to registry after building
         tags: ${{ steps.meta.outputs.tags }} 
         labels: ${{ steps.meta.outputs.labels }}
