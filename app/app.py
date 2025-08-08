@@ -3,7 +3,7 @@ from flask_students_routes import get_students, add_student, get_student  # Impo
 from redis_cache import create_app
 from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
 
-
+# test ci
 app = create_app()
 
 # Define a Prometheus metric: a counter that goes up for each request

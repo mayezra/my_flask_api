@@ -26,7 +26,8 @@ def create_redis_client():
         redis_host = os.getenv('CACHE_REDIS_HOST', 'localhost')
         redis_port = int(os.getenv('CACHE_REDIS_PORT', 6379))
         redis_db = int(os.getenv('CACHE_REDIS_DB', 0))
-        
+        redis_password = os.getenv('CACHE_REDIS_PASSWORD')
+
         logger.info(f"Attempting to connect to Redis at {redis_host}:{redis_port}, db={redis_db}")
         
         # Create Redis client with additional configuration
@@ -34,6 +35,11 @@ def create_redis_client():
             host=redis_host,
             port=redis_port,
             db=redis_db,
+            password=redis_password,
+            decode_responses=True,  # Optional: decode byte responses to strings
+            socket_connect_timeout=5,  # Connection timeout
+            socket_timeout=5,  # Socket timeout
+            retry_on_timeout=True
         )
         
         # Test the connection
@@ -60,12 +66,4 @@ def create_app():
 
     # Initialize extensions
     db.init_app(app)
-    
-    # Connect to Redis server (default settings)
-    redis_client = create_redis_client()
-    if redis_client is None:
-        logger.warning("Redis connection failed - running without cache")
-        app.redis_client = None
-    else:
-        app.redis_client = redis_client
     return app

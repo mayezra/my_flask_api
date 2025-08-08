@@ -1,0 +1,26 @@
+# Python junk
+__pycache__/
+*.pyc
+*.pyo
+
+# Local dev only
+.env
+*.log
+
+# Docker/K8s infra
+.dockerignore
+.docker-compose.yml
+helm/
+charts/
+templates/
+k8s/
+k8s-app/
+task instructions/
+
+# IDEs
+.vscode/
+.idea/
+
+# Git files
+.git/
+.gitignore

@@ -1,13 +1,20 @@
-from flask import jsonify, request, current_app
+from flask import jsonify, request
 import json
 from db import db, Student
+from redis_cache import create_redis_client
 
+# Get all students (Redis-cached)
 def get_students():
     try:
-        redis = current_app.redis_client  # safely get Redis
-        cached_data = redis.get('students_all')
-        if cached_data:
-            return jsonify(json.loads(cached_data))
+        redis = create_redis_client()
+        cached_data = None
+
+        if redis:
+            cached_data = redis.get("students_all")
+            if cached_data:
+                return jsonify(json.loads(cached_data))
+        else:
+            print("Redis is not available – fallback to DB")
 
         print("student is not in redis yet")
         students = Student.query.all()
@@ -21,13 +28,16 @@ def get_students():
             'bio': student.bio
         } for student in students]
 
-        redis.set('students_all', json.dumps(result), ex=3600)
-        print("student is added to redis caching")
+        if redis:
+            redis.set("students_all", json.dumps(result), ex=3600)
+            print("student data added to Redis cache")
+
         return jsonify(result)
 
     except Exception as e:
-        return jsonify({"error": f"Error accessing Redis: {str(e)}"}), 500
+        return jsonify({"error": f"Error accessing students: {str(e)}"}), 500
 
+# Get a student by ID (Redis-cached)
 def get_student(id):
     try:
         id = int(id)
@@ -35,10 +45,16 @@ def get_student(id):
         return jsonify({"error": "Invalid student ID"}), 400
 
     try:
-        redis = current_app.redis_client  
-        cached_data = redis.get(f'student_{id}')
-        if cached_data:
-            return jsonify(json.loads(cached_data))
+        redis = create_redis_client()
+        cached_data = None
+
+        if redis:
+            cached_data = redis.get(f'student_{id}')
+            if cached_data:
+                return jsonify(json.loads(cached_data))
+        else:
+            print("Redis is not available – fallback to DB")
+
     except Exception as e:
         return jsonify({"error": f"Error accessing Redis: {str(e)}"}), 500
 
@@ -57,11 +73,13 @@ def get_student(id):
         'bio': student.bio
     }
 
-    redis.set(f'student_{id}', json.dumps(result), ex=3600)
-    print("student is added to redis caching")
+    if redis:
+        redis.set(f'student_{id}', json.dumps(result), ex=3600)
+        print("student is added to Redis cache")
 
     return jsonify(result)
 
+# Add new student
 def add_student():
     data = request.json
     try:
@@ -75,8 +93,10 @@ def add_student():
         db.session.add(new_student)
         db.session.commit()
 
-        redis = current_app.redis_client  
-        redis.delete(f'student_{new_student.id}')
+        redis = create_redis_client()
+        if redis:
+            redis.delete(f'student_{new_student.id}')
+            redis.delete('students_all')  # optional: refresh list cache too
 
         return jsonify({"message": "Student added successfully"}), 201
 

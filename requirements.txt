@@ -6,4 +6,5 @@ blinker>=1.6.2
 psycopg2-binary
 python-dotenv==1.0.0
 prometheus_client>=0.17.1
+requests
 
