@@ -45,8 +45,6 @@ jobs:
           type=sha,prefix=sha-
           type=raw,value=latest,enable={{is_default_branch}}
     
-    - name: List files in workspace
-      run: ls -la
     # Build and push Docker image
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
