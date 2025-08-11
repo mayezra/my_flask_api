@@ -36,3 +36,4 @@ EXPOSE 5000
 ENTRYPOINT ["python", "app/app.py"]   
 
 
+
