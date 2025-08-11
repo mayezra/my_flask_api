@@ -9,10 +9,6 @@ __pycache__/
 
 # Docker/K8s infra
 .dockerignore
-.docker-compose.yml
-helm/
-charts/
-templates/
 k8s/
 k8s-app/
 task instructions/
