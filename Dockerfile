@@ -22,6 +22,12 @@ COPY app/ /app/app/
 FROM python:3.8-slim
 WORKDIR /app   
 
+# Install runtime dependencies for PostgreSQL
+RUN apt-get update && \
+    apt-get install -y libpq5 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # Copy Python application files from build stage
 COPY --from=build /app/app/ /app/app/
 
@@ -33,7 +39,11 @@ RUN useradd -m appuser && \
 USER appuser
 EXPOSE 5000
 # main command that will run when the container starts is used to set the main command for the container.
-ENTRYPOINT ["python", "app/app.py"]   
+CMD ["python", "app/app.py"]   
+
+
+ 
+
 
 
 
